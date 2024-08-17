@@ -1,0 +1,214 @@
+openapi: 3.0.0
+info:
+  title: Payment Service API
+  version: 1.0.0
+  description: API for handling payment transactions such as deposits, withdrawals, and callbacks.
+servers:
+  - url: http://localhost:8080
+paths:
+  /deposit:
+    post:
+      summary: Handle deposit transactions
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                amount:
+                  type: number
+                  format: float
+                  description: The amount to deposit.
+                gateway:
+                  type: string
+                  enum:
+                    - gateway_a
+                    - gateway_b
+                  description: The payment gateway to use.
+              required:
+                - amount
+                - gateway
+      responses:
+        '200':
+          description: Deposit transaction successful
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Transaction'
+        '400':
+          description: Bad request
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+        '500':
+          description: Internal server error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+  /withdrawal:
+    post:
+      summary: Handle withdrawal transactions
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                amount:
+                  type: number
+                  format: float
+                  description: The amount to withdraw.
+                gateway:
+                  type: string
+                  enum:
+                    - gateway_a
+                    - gateway_b
+                  description: The payment gateway to use.
+              required:
+                - amount
+                - gateway
+      responses:
+        '200':
+          description: Withdrawal transaction successful
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Transaction'
+        '400':
+          description: Bad request
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+        '500':
+          description: Internal server error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+  /callback/{gateway}:
+    post:
+      summary: Handle payment gateway callbacks
+      parameters:
+        - name: gateway
+          in: path
+          required: true
+          schema:
+            type: string
+            enum:
+              - gateway_a
+              - gateway_b
+          description: The payment gateway identifier.
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                status:
+                  type: string
+                  description: Status of the transaction (used for gateway_a).
+                transaction_id:
+                  type: string
+                  description: The ID of the transaction (used for gateway_a).
+              required:
+                - status
+                - transaction_id
+      responses:
+        '200':
+          description: Callback processed successfully
+        '400':
+          description: Bad request
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+        '500':
+          description: Internal server error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+  /transaction/{id}:
+    get:
+      summary: Get transaction details
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: string
+          description: The transaction identifier.
+      responses:
+        '200':
+          description: Transaction details
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Transaction'
+        '400':
+          description: Transaction not found
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+        '500':
+          description: Internal server error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+components:
+  schemas:
+    Transaction:
+      type: object
+      properties:
+        ID:
+          type: string
+          description: Unique transaction identifier
+        Amount:
+          type: number
+          format: float
+          description: Transaction amount
+        Type:
+          type: string
+          description: Transaction type (deposit or withdrawal)
+        Status:
+          type: string
+          description: Current transaction status
+        Gateway:
+          type: string
+          description: Payment gateway used for the transaction
+        CreatedAt:
+          type: string
+          format: date-time
+          description: Timestamp when the transaction was created
+        UpdatedAt:
+          type: string
+          format: date-time
+          description: Timestamp when the transaction was last updated
+      required:
+        - ID
+        - Amount
+        - Type
+        - Status
+        - Gateway
+        - CreatedAt
+        - UpdatedAt
+    ErrorResponse:
+      type: object
+      properties:
+        Message:
+          type: string
+          description: Error message
+        Code:
+          type: string
+          description: Error code for internationalization
+      required:
+        - Message
+        - Code
