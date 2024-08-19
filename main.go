@@ -41,6 +41,9 @@ func run(ctx context.Context, app *app) error {
 	r.Post("/callback/{gateway}", app.handleCallback)
 	r.Get("/transaction/{id}", app.handleGetTransaction)
 
+	// serve the static file in /static
+	r.Handle("/static/*", http.StripPrefix("/static/", http.FileServer(http.Dir("./"))))
+
 	return http.Serve(app.lis, r)
 }
 
@@ -105,16 +108,17 @@ func (a *app) handleCallback(w http.ResponseWriter, r *http.Request) {
 }
 
 func (a *app) handleGetTransaction(w http.ResponseWriter, r *http.Request) {
+	w.Header().Set("Content-Type", "application/json")
 	id := chi.URLParam(r, "id")
 	tx, err := a.paymentService.Get().GetTransaction(r.Context(), id)
 	if err != nil {
-		http.Error(w, err.Error(), http.StatusInternalServerError)
+		jsonError(w, err.Error(), "transaction_not_found", http.StatusBadRequest)
 		return
 	}
 	// this could also be used as an entirely different endpoint
 	xmlJson, err := a.merger.Get().Merge(r.Context(), *tx)
 	if err != nil {
-		http.Error(w, err.Error(), http.StatusInternalServerError)
+		jsonError(w, err.Error(), "merger_error", http.StatusInternalServerError)
 		return
 	}
 	log.Printf("the returned type is: %+v", xmlJson)

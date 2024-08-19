@@ -1,0 +1,4 @@
+# flyctl launch added from .gitignore
+**/exinity
+**/payment_system
+fly.toml

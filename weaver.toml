@@ -1,5 +1,5 @@
 [serviceweaver]
 binary = "./payment_system"
 
-[multi]
-listeners.lis = {address = "localhost:8080"}
+[single]
+listeners.lis = {address = "0.0.0.0:8080"}
