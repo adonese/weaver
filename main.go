@@ -42,7 +42,9 @@ func run(ctx context.Context, app *app) error {
 	r.Get("/transaction/{id}", app.handleGetTransaction)
 
 	// serve the static file in /static
-	r.Handle("/static/*", http.StripPrefix("/static/", http.FileServer(http.Dir("./"))))
+	r.Get("/docs", func(w http.ResponseWriter, r *http.Request) {
+		http.ServeFile(w, r, "./redoc-static.html")
+	})
 
 	return http.Serve(app.lis, r)
 }

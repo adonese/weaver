@@ -32,5 +32,4 @@ The program is composed of an integration test that tests the full flow of a tra
 ## Design decisions
 
 - we decided to keep the backing storage of the transactions in memory, for the sake of simplicity and shared for both gateways
-- we have http handlers for withdraw and deposit, and a callback to update the transaction status. We also have a transaction status api
-- http handler will call 
+- unit tests for http handler; why? and not the full code. Well, for the starter this follows my philosophy and also experiance with payments: once an api is released we should respect that and never change it, that's why the emphasize for me was doing this integration testing as oppose to 100% coverage.
